@@ -9,3 +9,9 @@ export const usersSchema = Type.Array(
 );
 export type UsersSchemaType = Static<typeof usersSchema>;
 export const usersValidation = TypeCompiler.Compile(usersSchema);
+
+export const averageSchema = Type.Object({
+  average: Type.Number(),
+});
+export type AverageSchemaType = Static<typeof averageSchema>;
+export const averageValidation = TypeCompiler.Compile(averageSchema);

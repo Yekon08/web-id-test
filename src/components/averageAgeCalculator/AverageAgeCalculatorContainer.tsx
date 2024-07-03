@@ -1,14 +1,20 @@
+import { useState } from "react";
 import { usersValidation } from "../../types";
 import { useFetch } from "../../utils/fetcher";
 import AverageAgeCalculator from "./AverageAgeCalculator";
 import AverageAgeCalculatorList from "./AverageAgeCalculatorList";
 
 const AverageAgeCalculatorContainer = () => {
-  const url =
-    "https://infallible-tereshkova-717266.netlify.app/.netlify/functions/server/users";
-  const { data, isLoading, error } = useFetch(url, usersValidation);
+  const { data, isLoading, error } = useFetch("/users");
+  const [checkedNames, setCheckedNames] = useState<number[]>([]);
 
-  console.log({ data });
+  const handleCheckboxChange = (id: number) => {
+    setCheckedNames((prevCheckedNames) =>
+      prevCheckedNames.includes(id)
+        ? prevCheckedNames.filter((n) => n !== id)
+        : [...prevCheckedNames, id]
+    );
+  };
 
   const handleRender = () => {
     if (isLoading) {
@@ -27,21 +33,33 @@ const AverageAgeCalculatorContainer = () => {
       );
     }
 
+    if (usersValidation.Check(data)) {
+      return (
+        <div className="flex">
+          <AverageAgeCalculatorList
+            users={data}
+            checkedNames={checkedNames}
+            handleCheckboxChange={handleCheckboxChange}
+          />
+          <AverageAgeCalculator checkedNames={checkedNames} />
+        </div>
+      );
+    }
+
     return (
-      <div className="flex">
-        <AverageAgeCalculatorList />
-        <AverageAgeCalculator />
+      <div className="text-center">
+        <p>Data fetched has the wrong data type.</p>
       </div>
     );
   };
 
   return (
-    <>
-      <h1 className="text-2xl uppercase text-lightBlack my-32 text-center">
+    <div className="max-w-5xl mx-auto">
+      <h1 className="text-2xl uppercase my-32 text-center">
         average age calculator
       </h1>
       {handleRender()}
-    </>
+    </div>
   );
 };
 

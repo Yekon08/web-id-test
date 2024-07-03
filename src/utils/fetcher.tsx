@@ -1,12 +1,10 @@
-import { TSchema } from "@sinclair/typebox";
-import { TypeCheck } from "@sinclair/typebox/compiler";
 import { useEffect, useState } from "react";
 
-export const useFetch = <T extends TSchema>(
-  url: string,
-  validation: TypeCheck<T>
-) => {
-  const [data, setData] = useState<T | null>(null);
+const BASE_URL =
+  "https://infallible-tereshkova-717266.netlify.app/.netlify/functions/server";
+
+export const useFetch = (url: string) => {
+  const [data, setData] = useState<unknown | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,15 +12,14 @@ export const useFetch = <T extends TSchema>(
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error(response.statusText);
-        const json: T = await response.json();
-        if (validation.Check(json)) {
-          setData(json);
-          setError(null);
-        } else {
-          setError("Data fetched has the wrong data type");
+        const response = await fetch(`${BASE_URL}${url}`);
+        const json = await response.json();
+        if ((json && json.error) || !response.ok) {
+          setData(null);
+          return setError(json.error || response.statusText);
         }
+        setData(json);
+        return setError(null);
       } catch (error) {
         setError(`${error} Could not fetch data`);
       } finally {
@@ -30,7 +27,7 @@ export const useFetch = <T extends TSchema>(
       }
     };
     fetchData();
-  }, [url, validation]);
+  }, [url]);
 
   return { data, isLoading, error };
 };
