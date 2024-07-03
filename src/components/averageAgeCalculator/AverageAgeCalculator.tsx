@@ -8,9 +8,8 @@ interface Props {
 }
 
 const AverageAgeCalculator = ({ checkedNames }: Props) => {
-  console.log(checkedNames);
   const { data, isLoading, error } = useFetch(`/average?ids=[${checkedNames}]`);
-  console.log("data: ", data);
+
   const handleRender = () => {
     if (isLoading) {
       return (
